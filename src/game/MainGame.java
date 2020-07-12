@@ -1,6 +1,7 @@
 package game;
 
 import java.io.IOException;
+import java.util.Random;
 
 import backend.SudokuGridGenerator;
 import engine.Game;
@@ -14,6 +15,7 @@ public class MainGame {
 //	-----------------------------------
 	private static class cell{
 		Quad mQuad = null;
+		@SuppressWarnings("unused")
 		Text number = null;
 		
 		public cell(float x,float y,float width,float height) {
@@ -34,6 +36,13 @@ public class MainGame {
 	}
 	
 	public static void main(String[] args) throws IOException {
+		
+//		main data stores required
+//		1. base sudoku (can be used as solution)
+//		2. array of blank spaces which would punch holes through the sudoku
+//		3. punched sudoku which will be filled by the user
+//		---------------------------------------------------------------------------
+		
 		Game game = new Game(1920,1080,"Sudoku");
 		
 		boolean isGame = game.init();
@@ -46,9 +55,21 @@ public class MainGame {
 		bgQuad.setCoordinates(0, 0, 0.25f, 0.25f);
 		Game.mVQuadVector.add(bgQuad);
 		
+//		1.base sudoku
+//		-----------------
 		SudokuGridGenerator generator = new SudokuGridGenerator();
 		int[] sudokuSolution = generator.generateGrid();
-		cell[] cellGrid = createGrid(sudokuSolution);
+		
+//		2. array of blank members
+//		---------------------------
+		int[] arrayOfBlanks = createBlanks(10);
+		
+//		3.punched array
+//		---------------
+		int [] punchedArray = punchArray(sudokuSolution, arrayOfBlanks);
+		
+//		once all data is generated we can create grid and assign the sudoku
+		cell[] cellGrid = createGrid(punchedArray);
 		
 		Texture TextTexture = new Texture("images/SegoeUISemibold.png",0);
 		Game.mTextureVector.add(TextTexture);
@@ -61,6 +82,8 @@ public class MainGame {
 		
 	}
 	
+//	creates the drawable grid layout and adds the sudoku numbers to their position
+//	------------------------------------------------------------------------------
 	private static cell[] createGrid(int[] sudoku) {
 		cell[] cellGrid = new cell[81];
 		
@@ -79,7 +102,7 @@ public class MainGame {
 		for(int i=0;i<81;i++) {
 			row = (int)(i/9);
 			column = (int)(i%9);
-			numString = Integer.toString(sudoku[i]);
+			numString = sudoku[i]==999 ? "":Integer.toString(sudoku[i]);
 			cellGrid[i] = new cell(startX+(column*sideDim),startY-(row*sideDim),sideDim,sideDim,numString);
 			
 //			we check if row and column are even or odd.
@@ -94,6 +117,31 @@ public class MainGame {
 		}
 		
 		return cellGrid;
+	}
+	
+//	randomly generates blanks in the sudoku
+//	----------------------------------------
+	private static int[] createBlanks(int numberOfBlanks) {
+		
+		int blankIndices[] = new int[numberOfBlanks];
+		Random random = new Random();
+		
+		for(int i=0;i<numberOfBlanks;i++) {
+			blankIndices[i] = Math.abs(random.nextInt()%81);
+		}
+		
+		return blankIndices;
+		
+	}
+	
+//	punch holes in the sudoku
+//	-------------------------
+	private static int[] punchArray(int[] toBePunched,int[] arrayOfBlanks) {
+		
+		for (int i = 0; i < arrayOfBlanks.length; i++) {
+			toBePunched[arrayOfBlanks[i]] = 999;
+		}
+		return toBePunched;
 	}
 
 }
