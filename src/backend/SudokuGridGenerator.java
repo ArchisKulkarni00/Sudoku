@@ -49,16 +49,16 @@ import java.util.ArrayList;
  * colOrigin + i*9
 */
 
-class SudokuGridGenerator
+public class SudokuGridGenerator
 {
    private int[] grid;
    
-   public static void main(String[]args)
-   {
-      SudokuGridGenerator sudoku = new SudokuGridGenerator();
-//      System.out.println(isPerfect(sudoku.generateGrid()));
-      printGrid(sudoku.generateGrid());
-   }
+//   public static void main(String[]args)
+//   {
+//      SudokuGridGenerator sudoku = new SudokuGridGenerator();
+////      System.out.println(isPerfect(sudoku.generateGrid()));
+//      printGrid(sudoku.generateGrid());
+//   }
    
    /**
    *Generates a valid 9 by 9 Sudoku grid with 1 through 9 appearing only once in every box, row, and column
