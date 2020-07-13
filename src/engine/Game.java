@@ -19,6 +19,14 @@ public class Game {
 	private Shader mShader=new Shader();
 	private CameraOrtho2d mCamera = null;
 	private GLFWWindowSizeCallback windowSizeCallback = null;
+	
+	private double frameCapacity = 1.0/30.0;
+	private double initTime = 0.0;
+	private double finalTime = 0.0;
+	private double deltaTime = 0.0;
+//	private double fpsChecker = 0.0;
+//	private int frames = 0;
+	
 //	private GLFWScrollCallback scrollCallback = null;
 	public static Vector<Texture> mTextureVector = new Vector<>();
 	
@@ -61,24 +69,47 @@ public class Game {
 		//create opengl context
 		glfwMakeContextCurrent(mWindow);
 		GL.createCapabilities();
+//		glfwSwapInterval(0);
 		
 		//set colour buffer data
 		glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
-		
 		setAllCallbacks();
 		
 		//make window visible
 		glfwShowWindow(mWindow);
-		
 		return true;
 	}
 	
 	public void runloop() {
 		while (!glfwWindowShouldClose(mWindow)) {
+//			we get initial time reading
+			initTime = TimerControl.getTime();
+			
 			ProcessInput();
 			ProcessOutput();
+			
+//			we get time after processing
+			finalTime = TimerControl.getTime();
+			
+//			we get total time of executing the processes
+			deltaTime = finalTime-initTime;
+			
+//			wait till time for 1 frame is completed if processing finishes before allotted time
+			while (deltaTime<=frameCapacity) {
+				deltaTime = TimerControl.getTime()-initTime;
+			}
+			
+//			frame rate calculation code
+			
+//			frames++;
+//			fpsChecker+=deltaTime;
+//			if (fpsChecker>=1.0) {
+//				fpsChecker=0;
+//				System.out.println("FPS: "+frames);
+//				frames=0;
+//			}
+			
 		}
-		
 	}
 	
 	public void terminate() {
@@ -86,6 +117,8 @@ public class Game {
 		for(int i=0;i<mTextureVector.size();i++) {
 			mTextureVector.get(i).delete();
 		}
+		mVVertexArray.delete();
+		mTextVertexArray.delete();
 //		plane.delete();
 		glfwTerminate();
 	}
@@ -162,7 +195,7 @@ public class Game {
 				if (mCamera.isEnabled()) {
 					mCamera.setProjection(width, height);
 				}
-				System.out.println(mWidth+"  "+mHeight);
+//				System.out.println(mWidth+"  "+mHeight);
 				
 			}
 		};
