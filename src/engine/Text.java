@@ -43,6 +43,7 @@ public class Text extends QuadGrid{
 		}
 	}
 	private void push() {
+//		System.out.println("Pushed to txtvec");
 		push(Game.mTextVector);
 	}
 }

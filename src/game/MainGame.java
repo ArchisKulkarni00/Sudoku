@@ -33,6 +33,9 @@ public class MainGame {
 		public void setBgColour(float r,float g, float b,float a) {
 			mQuad.setBgColour(r, g, b, a);
 		}
+		public void setTextBgColour(float r,float g, float b,float a) {
+			number.setBgColour(r, g, b, a);
+		}
 	}
 	
 	public static void main(String[] args) throws IOException {
@@ -49,6 +52,8 @@ public class MainGame {
 		game.initShader("Shaders/vs001", "Shaders/fs002");
 		game.enableCamera();
 		
+		
+		
 		Quad bgQuad = new Quad(-0.5f,0.5f,1.0f,1.0f);
 		bgQuad.setBgColour(0.5f, 0.5f, 0.0f, 1.0f);
 		bgQuad.setTexture(1);
@@ -58,7 +63,7 @@ public class MainGame {
 //		1.base sudoku
 //		-----------------
 		SudokuGridGenerator generator = new SudokuGridGenerator();
-		int[] sudokuSolution = generator.generateGrid();
+		int[] sudoku = generator.generateGrid();
 		
 //		2. array of blank members
 //		---------------------------
@@ -66,10 +71,20 @@ public class MainGame {
 		
 //		3.punched array
 //		---------------
-		int [] punchedArray = punchArray(sudokuSolution, arrayOfBlanks);
+		punchArray(sudoku, arrayOfBlanks);
 		
 //		once all data is generated we can create grid and assign the sudoku
-		cell[] cellGrid = createGrid(punchedArray);
+		cell[] cellGrid = createGrid(sudoku);
+		changeStyleOfActive(cellGrid[arrayOfBlanks[0]]);
+		
+		Quad infoQuad = new Quad(-0.95f,0.5f,0.3f,0.1f);
+		infoQuad.setBgColour(0.2f, 0.2f, 0.2f, 1.0f);
+		infoQuad.setTexture(1);
+		infoQuad.setCoordinates(0, 0, 0.25f, 0.25f);
+		Game.mVQuadVector.add(infoQuad);
+		int totalQuads = Game.mVQuadVector.size()+Game.mTextVector.size();
+		Text mText = new Text("Number of quads:"+Integer.toString(totalQuads),-0.945f,0.48f,0.30f,0.30f/19.0f);
+		mText.setBgColour(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		Texture TextTexture = new Texture("images/SegoeUISemibold.png",0);
 		Game.mTextureVector.add(TextTexture);
@@ -102,7 +117,7 @@ public class MainGame {
 		for(int i=0;i<81;i++) {
 			row = (int)(i/9);
 			column = (int)(i%9);
-			numString = sudoku[i]==999 ? "":Integer.toString(sudoku[i]);
+			numString = sudoku[i]==999 ? " ":Integer.toString(sudoku[i]);
 			cellGrid[i] = new cell(startX+(column*sideDim),startY-(row*sideDim),sideDim,sideDim,numString);
 			
 //			we check if row and column are even or odd.
@@ -136,12 +151,18 @@ public class MainGame {
 	
 //	punch holes in the sudoku
 //	-------------------------
-	private static int[] punchArray(int[] toBePunched,int[] arrayOfBlanks) {
+	private static void punchArray(int[] toBePunched,int[] arrayOfBlanks) {
 		
 		for (int i = 0; i < arrayOfBlanks.length; i++) {
 			toBePunched[arrayOfBlanks[i]] = 999;
 		}
-		return toBePunched;
+	}
+	
+//	change style of the active cell
+//	-------------------------------
+	private static void changeStyleOfActive(cell activeCell) {
+		activeCell.setBgColour(1.0f, 0.5f, 0.0f, 1.0f);
+		activeCell.setTextBgColour(0.0f, 0.0f, 1.0f, 0.0f);
 	}
 
 }
