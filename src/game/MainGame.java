@@ -46,11 +46,10 @@ public class MainGame {
 //		3. punched sudoku which will be filled by the user
 //		---------------------------------------------------------------------------
 		
-		Game game = new Game(1920,1080,"Sudoku");
+		Game game = new Game(720,720,"Sudoku");
 		
 		boolean isGame = game.init();
 		game.initShader("Shaders/vs001", "Shaders/fs002");
-		game.enableCamera();
 		
 		
 		
@@ -77,14 +76,6 @@ public class MainGame {
 		cell[] cellGrid = createGrid(sudoku);
 		changeStyleOfActive(cellGrid[arrayOfBlanks[0]]);
 		
-		Quad infoQuad = new Quad(-0.95f,0.5f,0.3f,0.1f);
-		infoQuad.setBgColour(0.2f, 0.2f, 0.2f, 1.0f);
-		infoQuad.setTexture(1);
-		infoQuad.setCoordinates(0, 0, 0.25f, 0.25f);
-		Game.mVQuadVector.add(infoQuad);
-		int totalQuads = Game.mVQuadVector.size()+Game.mTextVector.size();
-		Text mText = new Text("Number of quads:"+Integer.toString(totalQuads),-0.945f,0.48f,0.30f,0.30f/19.0f);
-		mText.setBgColour(1.0f, 1.0f, 1.0f, 1.0f);
 		
 		Texture TextTexture = new Texture("images/SegoeUISemibold.png",0);
 		Game.mTextureVector.add(TextTexture);

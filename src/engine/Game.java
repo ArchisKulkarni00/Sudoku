@@ -5,6 +5,7 @@ import static org.lwjgl.opengl.GL33.*;
 import java.io.IOException;
 import java.util.Vector;
 
+import org.lwjgl.glfw.GLFWCursorPosCallback;
 //import org.lwjgl.glfw.GLFWScrollCallback;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
@@ -18,7 +19,9 @@ public class Game {
 	private long mWindow;
 	private Shader mShader=new Shader();
 	private CameraOrtho2d mCamera = null;
+	
 	private GLFWWindowSizeCallback windowSizeCallback = null;
+	private GLFWCursorPosCallback cursorPosCallback = null;
 	
 	private double frameCapacity = 1.0/30.0;
 	private double initTime = 0.0;
@@ -56,8 +59,8 @@ public class Game {
 			throw new IllegalStateException("cannot init glfw");
 		}
 		
-//		glfwWindowHint(GLFW_RESIZABLE, 0);
-		glfwWindowHint(GLFW_MAXIMIZED, 1);
+		glfwWindowHint(GLFW_RESIZABLE, 0);
+//		glfwWindowHint(GLFW_MAXIMIZED, 1);
 		mWindow = glfwCreateWindow(mWidth,mHeight, mWindowTitle, 0, 0);
 //		long mCursor = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
 //		glfwSetCursor(mWindow, mCursor);
@@ -144,7 +147,8 @@ public class Game {
 		for(int i=0;i<mTextureVector.size();i++) {
 			mTextureVector.get(i).setActive();
 		}
-		mShader.setCamera(mCamera.getProjection());
+//		mShader.setCamera(mCamera.getProjection());
+		mShader.disableCamera();
 		mShader.setActive();
 		mVVertexArray.setActive();
 		GL33.glDrawElements(GL33.GL_TRIANGLES, mVVertexArray.getVertexCount(), GL33.GL_UNSIGNED_INT, 0);
@@ -156,6 +160,7 @@ public class Game {
 		for(int i=0;i<mTextureVector.size();i++) {
 			mTextureVector.get(i).setActive();
 		}
+		mShader.disableCamera();
 		mShader.setActive();
 		mTextVertexArray.setActive();
 		GL33.glDrawElements(GL33.GL_TRIANGLES, mTextVertexArray.getVertexCount(), GL33.GL_UNSIGNED_INT, 0);
@@ -200,6 +205,15 @@ public class Game {
 			}
 		};
 		
+		cursorPosCallback = new GLFWCursorPosCallback() {
+			
+			@Override
+			public void invoke(long window, double xpos, double ypos) {
+				float x = (float)(xpos/(float)mWidth);
+				float y = (float)(ypos/(float)mHeight);
+			}
+		};
+		
 //		scrollCallback = new GLFWScrollCallback() {
 //			
 //			@Override
@@ -209,6 +223,7 @@ public class Game {
 //		};
 		
 		glfwSetWindowSizeCallback(mWindow, windowSizeCallback);
+		glfwSetCursorPosCallback(mWindow, cursorPosCallback);
 //		glfwSetScrollCallback(mWindow, scrollCallback);
 	}
 	
