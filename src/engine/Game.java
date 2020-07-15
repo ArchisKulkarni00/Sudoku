@@ -125,6 +125,7 @@ public class Game {
 		}
 		mVVertexArray.delete();
 		mTextVertexArray.delete();
+		Input.delete();
 //		plane.delete();
 		glfwTerminate();
 	}
@@ -201,6 +202,7 @@ public class Game {
 		glfwSetWindowSizeCallback(mWindow, Input.windowSizeCallback);
 		glfwSetCursorPosCallback(mWindow, Input.cursorPosCallback);
 		glfwSetMouseButtonCallback(mWindow, Input.mouseButtonCallback);
+		glfwSetKeyCallback(mWindow, Input.glfwKeyCallback);
 	}
 	
 	

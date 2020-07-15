@@ -1,6 +1,7 @@
 package game;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 
 import backend.SudokuGridGenerator;
@@ -35,6 +36,10 @@ public class MainGame {
 		}
 		public void setTextBgColour(float r,float g, float b,float a) {
 			number.setBgColour(r, g, b, a);
+		}
+		
+		public void setText(String pString) {
+			number.setText(pString);
 		}
 		
 	}
@@ -80,7 +85,7 @@ public class MainGame {
 		
 //		once all data is generated we can create grid and assign the sudoku
 		cellGrid = createGrid();
-//		changeStyleOfActive(23);
+		changeStyleOfActive(arrayOfBlanks[0]);
 		
 		
 		Texture TextTexture = new Texture("images/SegoeUISemibold.png",0);
@@ -120,12 +125,18 @@ public class MainGame {
 //			we check if row and column are even or odd.
 //			then we assign colours by XORing those results.
 //			--------------------------------------------------
-			if ((row/3)%2==0 ^ (column/3)%2==0) {
-				cellGrid[i].setBgColour(0.0f, 0.3f, 0.0f, 1.0f);
+			if (sudoku[i]==999) {
+				cellGrid[i].setBgColour(0.3f, 0.0f, 0.0f, 1.0f);
 			}
 			else {
-				cellGrid[i].setBgColour(0.0f, 0.0f, 0.3f, 1.0f);
+				if ((row/3)%2==0 ^ (column/3)%2==0) {
+					cellGrid[i].setBgColour(0.0f, 0.3f, 0.0f, 1.0f);
+				}
+				else {
+					cellGrid[i].setBgColour(0.0f, 0.0f, 0.3f, 1.0f);
+				}
 			}
+			
 		}
 		
 		return cellGrid;
@@ -141,7 +152,7 @@ public class MainGame {
 		for(int i=0;i<numberOfBlanks;i++) {
 			blankIndices[i] = Math.abs(random.nextInt()%81);
 		}
-		
+		Arrays.sort(blankIndices);
 		return blankIndices;
 		
 	}
@@ -159,7 +170,7 @@ public class MainGame {
 //	-------------------------------
 	private static void changeStyleOfActive(int newIndex) {
 		setDefaultColour();
-		cellGrid[newIndex].setBgColour(1.0f, 0.5f, 0.0f, 1.0f);
+		cellGrid[newIndex].setBgColour(0.5f, 0.25f, 0.0f, 1.0f);
 		cellGrid[newIndex].setTextBgColour(0.0f, 0.0f, 1.0f, 0.0f);
 		currIndex = newIndex;
 		Game.initVertexArray();
@@ -167,18 +178,29 @@ public class MainGame {
 
 //	called by Input class when left click is pressed
 //	------------------------------------------------
-	static void selectActiveCell(float xpos,float ypos) {
-//		System.out.println("LMB at X:"+xpos+"  Y:"+ypos);
-		
+	static void selectActiveCell(float xpos,float ypos) {		
 //		!!! this cursor system works on window coordinates rather than opengl coordinates !!!
 		
 		if (xpos>0.275f && xpos<0.725f && ypos>0.275f && ypos<0.725f) {
 			int row = (int) ((ypos-0.275f)/0.05f)+1;
 			int column = (int) ((xpos-0.275f)/0.05f)+1;
 			int cellNumber = (row-1)*9 + column-1;
-			changeStyleOfActive(cellNumber);
-//			System.out.println("LMB in grid row="+row+" column="+column+" cell number="+sudoku[cellNumber]);
+			if (sudoku[cellNumber]==999) {
+				changeStyleOfActive(cellNumber);
+			}
 		}
+	}
+	
+//	called by Input class when number key is pressed
+//	-------------------------------------------------
+	static void inputNumber(int number) {
+		cellGrid[currIndex].setText(Integer.toString(number));
+		Game.initVertexArray();
+	}
+	
+	static void removeNumber() {
+		cellGrid[currIndex].setText(" ");
+		Game.initVertexArray();
 	}
 	
 	private static void setDefaultColour() {
@@ -188,11 +210,16 @@ public class MainGame {
 //		we check if row and column are even or odd.
 //		then we assign colours by XORing those results.
 //		--------------------------------------------------
-		if ((row/3)%2==0 ^ (column/3)%2==0) {
-			cellGrid[currIndex].setBgColour(0.0f, 0.3f, 0.0f, 1.0f);
+		if (sudoku[currIndex]==999) {
+			cellGrid[currIndex].setBgColour(0.3f, 0.0f, 0.0f, 1.0f);
 		}
 		else {
-			cellGrid[currIndex].setBgColour(0.0f, 0.0f, 0.3f, 1.0f);
+			if ((row/3)%2==0 ^ (column/3)%2==0) {
+				cellGrid[currIndex].setBgColour(0.0f, 0.3f, 0.0f, 1.0f);
+			}
+			else {
+				cellGrid[currIndex].setBgColour(0.0f, 0.0f, 0.3f, 1.0f);
+			}
 		}
 		cellGrid[currIndex].setTextBgColour(1.0f, 1.0f, 1.0f, 0.0f);
 	}
