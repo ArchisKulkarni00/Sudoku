@@ -5,23 +5,24 @@ import static org.lwjgl.opengl.GL33.*;
 import java.io.IOException;
 import java.util.Vector;
 
-import org.lwjgl.glfw.GLFWCursorPosCallback;
-//import org.lwjgl.glfw.GLFWScrollCallback;
-import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL33;
+
+import game.Input;
 
 public class Game {
 	
 	//########## Internal Data members ##########
-	private int mWidth,mHeight;
+	private static int mWidth;
+	private static int mHeight;
 	private String mWindowTitle;
 	private long mWindow;
 	private Shader mShader=new Shader();
 	private CameraOrtho2d mCamera = null;
 	
-	private GLFWWindowSizeCallback windowSizeCallback = null;
-	private GLFWCursorPosCallback cursorPosCallback = null;
+//	public float currentCursorPosX = 0.0f;
+//	public float currentCursorPosY = 0.0f;
+//	public boolean[] mouseState = new boolean[3];
 	
 	private double frameCapacity = 1.0/30.0;
 	private double initTime = 0.0;
@@ -35,24 +36,25 @@ public class Game {
 	
 //	text element holders
 	public static Vector<Quad> mTextVector = new Vector<>();
-	VertexArray mTextVertexArray = new VertexArray();
+	static VertexArray mTextVertexArray = new VertexArray();
 	
 	
 //	Viewport element holders
 	public static Vector<Quad> mVQuadVector = new Vector<>();
-	VertexArray mVVertexArray = new VertexArray();
+	static VertexArray mVVertexArray = new VertexArray();
 	
 	//########## External public functionality ##########
 	
 	public Game(int width,int height, String title) {
-		mWidth = width;
-		mHeight = height;
+		mWidth = Input.mWidth = width;
+		mHeight = Input.mHeight = height;
 		mWindowTitle = title;
 	}
 	
 	public  Game() {
 		this(1280, 720, "GameWindow");
 	}
+	
 	
 	public boolean init() {
 		if (!glfwInit()) {
@@ -72,7 +74,6 @@ public class Game {
 		//create opengl context
 		glfwMakeContextCurrent(mWindow);
 		GL.createCapabilities();
-//		glfwSwapInterval(0);
 		
 		//set colour buffer data
 		glClearColor(0.8f, 0.8f, 0.8f, 0.0f);
@@ -80,6 +81,7 @@ public class Game {
 		
 		//make window visible
 		glfwShowWindow(mWindow);
+		
 		return true;
 	}
 	
@@ -89,6 +91,7 @@ public class Game {
 			initTime = TimerControl.getTime();
 			
 			ProcessInput();
+			Input.ProcessUpdate();
 			ProcessOutput();
 			
 //			we get time after processing
@@ -130,7 +133,7 @@ public class Game {
 		mShader.load(vs, fs);
 	}
 	
-	public void initVertexArray() {
+	public static void initVertexArray() {
 		mVVertexArray.init(mVQuadVector);
 		mTextVertexArray.init(mTextVector);
 	}
@@ -138,6 +141,11 @@ public class Game {
 	public void enableCamera() {
 		mCamera = new CameraOrtho2d(mWidth, mHeight);
 		mShader.setCamera(mCamera.getProjection());
+	}
+	
+	public static void setDimensions() {
+		mWidth = Input.mWidth;
+		mHeight = Input.mHeight;
 	}
 	
 	//########## Internal private functionality ##########
@@ -187,44 +195,12 @@ public class Game {
 		}
 		
 	}
-	
+
 //	find all the required callbacks here
 	private void setAllCallbacks() {
-		windowSizeCallback = new GLFWWindowSizeCallback() {
-			
-			@Override
-			public void invoke(long window, int width, int height) {
-				mWidth=width;
-				mHeight=height;
-				glViewport(0, 0, width, height);
-				if (mCamera.isEnabled()) {
-					mCamera.setProjection(width, height);
-				}
-//				System.out.println(mWidth+"  "+mHeight);
-				
-			}
-		};
-		
-		cursorPosCallback = new GLFWCursorPosCallback() {
-			
-			@Override
-			public void invoke(long window, double xpos, double ypos) {
-				float x = (float)(xpos/(float)mWidth);
-				float y = (float)(ypos/(float)mHeight);
-			}
-		};
-		
-//		scrollCallback = new GLFWScrollCallback() {
-//			
-//			@Override
-//			public void invoke(long window, double xoffset, double yoffset) {
-//				mCamera.setScale((int)yoffset*50);
-//			}
-//		};
-		
-		glfwSetWindowSizeCallback(mWindow, windowSizeCallback);
-		glfwSetCursorPosCallback(mWindow, cursorPosCallback);
-//		glfwSetScrollCallback(mWindow, scrollCallback);
+		glfwSetWindowSizeCallback(mWindow, Input.windowSizeCallback);
+		glfwSetCursorPosCallback(mWindow, Input.cursorPosCallback);
+		glfwSetMouseButtonCallback(mWindow, Input.mouseButtonCallback);
 	}
 	
 	

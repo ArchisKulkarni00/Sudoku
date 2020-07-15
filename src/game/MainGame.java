@@ -36,7 +36,13 @@ public class MainGame {
 		public void setTextBgColour(float r,float g, float b,float a) {
 			number.setBgColour(r, g, b, a);
 		}
+		
 	}
+	
+	private static int[] sudoku = null;
+	private static int[] arrayOfBlanks = null;
+	private static cell[] cellGrid = null;
+	private static int currIndex=0;
 	
 	public static void main(String[] args) throws IOException {
 		
@@ -62,19 +68,19 @@ public class MainGame {
 //		1.base sudoku
 //		-----------------
 		SudokuGridGenerator generator = new SudokuGridGenerator();
-		int[] sudoku = generator.generateGrid();
+		sudoku = generator.generateGrid();
 		
 //		2. array of blank members
 //		---------------------------
-		int[] arrayOfBlanks = createBlanks(10);
+		arrayOfBlanks = createBlanks(10);
 		
 //		3.punched array
 //		---------------
-		punchArray(sudoku, arrayOfBlanks);
+		punchArray();
 		
 //		once all data is generated we can create grid and assign the sudoku
-		cell[] cellGrid = createGrid(sudoku);
-		changeStyleOfActive(cellGrid[arrayOfBlanks[0]]);
+		cellGrid = createGrid();
+//		changeStyleOfActive(23);
 		
 		
 		Texture TextTexture = new Texture("images/SegoeUISemibold.png",0);
@@ -82,7 +88,7 @@ public class MainGame {
 		Texture cellTexture = new Texture("images/Theme.png",1);
 		Game.mTextureVector.add(cellTexture);
 		if (isGame) {
-			game.initVertexArray();
+			Game.initVertexArray();
 			game.runloop();
 		}
 		
@@ -90,8 +96,8 @@ public class MainGame {
 	
 //	creates the drawable grid layout and adds the sudoku numbers to their position
 //	------------------------------------------------------------------------------
-	private static cell[] createGrid(int[] sudoku) {
-		cell[] cellGrid = new cell[81];
+	private static cell[] createGrid() {
+		cellGrid = new cell[81];
 		
 //		bg starts at -0.5,0.5
 //		so we have a margin of 0.025
@@ -142,18 +148,54 @@ public class MainGame {
 	
 //	punch holes in the sudoku
 //	-------------------------
-	private static void punchArray(int[] toBePunched,int[] arrayOfBlanks) {
+	private static void punchArray() {
 		
 		for (int i = 0; i < arrayOfBlanks.length; i++) {
-			toBePunched[arrayOfBlanks[i]] = 999;
+			sudoku[arrayOfBlanks[i]] = 999;
 		}
 	}
 	
 //	change style of the active cell
 //	-------------------------------
-	private static void changeStyleOfActive(cell activeCell) {
-		activeCell.setBgColour(1.0f, 0.5f, 0.0f, 1.0f);
-		activeCell.setTextBgColour(0.0f, 0.0f, 1.0f, 0.0f);
+	private static void changeStyleOfActive(int newIndex) {
+		setDefaultColour();
+		cellGrid[newIndex].setBgColour(1.0f, 0.5f, 0.0f, 1.0f);
+		cellGrid[newIndex].setTextBgColour(0.0f, 0.0f, 1.0f, 0.0f);
+		currIndex = newIndex;
+		Game.initVertexArray();
 	}
 
+//	called by Input class when left click is pressed
+//	------------------------------------------------
+	static void selectActiveCell(float xpos,float ypos) {
+//		System.out.println("LMB at X:"+xpos+"  Y:"+ypos);
+		
+//		!!! this cursor system works on window coordinates rather than opengl coordinates !!!
+		
+		if (xpos>0.275f && xpos<0.725f && ypos>0.275f && ypos<0.725f) {
+			int row = (int) ((ypos-0.275f)/0.05f)+1;
+			int column = (int) ((xpos-0.275f)/0.05f)+1;
+			int cellNumber = (row-1)*9 + column-1;
+			changeStyleOfActive(cellNumber);
+//			System.out.println("LMB in grid row="+row+" column="+column+" cell number="+sudoku[cellNumber]);
+		}
+	}
+	
+	private static void setDefaultColour() {
+		int row = (int)(currIndex/9);
+		int column = (int)(currIndex%9);
+		
+//		we check if row and column are even or odd.
+//		then we assign colours by XORing those results.
+//		--------------------------------------------------
+		if ((row/3)%2==0 ^ (column/3)%2==0) {
+			cellGrid[currIndex].setBgColour(0.0f, 0.3f, 0.0f, 1.0f);
+		}
+		else {
+			cellGrid[currIndex].setBgColour(0.0f, 0.0f, 0.3f, 1.0f);
+		}
+		cellGrid[currIndex].setTextBgColour(1.0f, 1.0f, 1.0f, 0.0f);
+	}
 }
+
+
