@@ -45,6 +45,7 @@ public class MainGame {
 	}
 	
 	private static int[] sudoku = null;
+	private static int [] editingSudoku = null;
 	private static int[] arrayOfBlanks = null;
 	private static cell[] cellGrid = null;
 	private static int currIndex=0;
@@ -82,6 +83,7 @@ public class MainGame {
 //		3.punched array
 //		---------------
 		punchArray();
+		editingSudoku = sudoku.clone();
 		
 //		once all data is generated we can create grid and assign the sudoku
 		cellGrid = createGrid();
@@ -196,11 +198,13 @@ public class MainGame {
 	static void inputNumber(int number) {
 		cellGrid[currIndex].setText(Integer.toString(number));
 		Game.initVertexArray();
+		editingSudoku[currIndex]=number;
 	}
 	
 	static void removeNumber() {
 		cellGrid[currIndex].setText(" ");
 		Game.initVertexArray();
+		editingSudoku[currIndex]=999;
 	}
 	
 	private static void setDefaultColour() {
